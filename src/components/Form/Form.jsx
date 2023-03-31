@@ -1,8 +1,16 @@
 import { useState } from 'react';
 import { FilterStyled } from '../Filter/Filter.styled';
-import PropTypes from 'prop-types';
 
-export const Form = ({ onSubmit }) => {
+import { nanoid } from 'nanoid';
+import { Report } from 'notiflix/build/notiflix-report-aio';
+import { addContact } from 'redux/contactsSlice';
+import { useDispatch } from 'react-redux';
+import { getContactsList } from 'redux/selectors';
+import { useSelector } from 'react-redux/es/exports';
+
+export const Form = () => {
+  const dispatch = useDispatch();
+  const contactsList = useSelector(getContactsList);
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
 
@@ -21,8 +29,23 @@ export const Form = ({ onSubmit }) => {
 
   const handleSubmit = e => {
     e.preventDefault();
-    onSubmit({ name, number });
+    updateContacts({ name, number });
     resetForm();
+  };
+
+  const updateContacts = ({ name, number }) => {
+    const contact = { id: nanoid(), name, number };
+    const contactExists = contactsList.find(contact => {
+      return contact.name === name || contact.number === number;
+    });
+
+    contactExists
+      ? Report.info(
+          '',
+          `Contact with name ${name} and number ${number} already exists`,
+          'Okay'
+        )
+      : dispatch(addContact(contact));
   };
 
   const resetForm = () => {
@@ -62,9 +85,4 @@ export const Form = ({ onSubmit }) => {
       </FilterStyled>
     </div>
   );
-};
-
-Form.propTypes = {
-  name: PropTypes.string,
-  value: PropTypes.number,
 };
