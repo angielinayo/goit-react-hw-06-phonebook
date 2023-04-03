@@ -4,39 +4,33 @@ import {
   Contact,
   DeleteButton,
 } from './Contacts.styled';
-import { useDispatch } from 'react-redux/es/exports';
-import { deleteContact } from 'redux/contactsSlice';
-import { getContactsList, getFilter } from 'redux/selectors';
-import { useSelector } from 'react-redux/es/exports';
+import { deleteContacts } from 'redux/operations';
+import { selectedContacts, selectIsLoading } from 'redux/selectors';
+import { useDispatch, useSelector } from 'react-redux';
 
 export const Contacts = () => {
   const dispatch = useDispatch();
+  const isLoading = useSelector(selectIsLoading);
+  const filteredContacts = useSelector(selectedContacts);
 
-  const contactsList = useSelector(getContactsList);
-  const filterQuery = useSelector(getFilter);
-
-  const normalizedFilter = filterQuery.toLowerCase();
-  const filteredContacts = contactsList.filter(contact =>
-    contact.name.toLowerCase().includes(normalizedFilter)
-  );
-
-  const deleteContacts = id => {
-    dispatch(deleteContact(id));
+  const deleteContact = id => {
+    dispatch(deleteContacts(id));
   };
 
   return (
     <ContactList>
-      {filteredContacts.map(({ id, name, number }) => {
-        return (
-          <Contact key={id}>
-            <ContactInfo>{name}</ContactInfo>
-            <ContactInfo>{number}</ContactInfo>
-            <DeleteButton onClick={() => deleteContacts(id)}>
-              Delete
-            </DeleteButton>
-          </Contact>
-        );
-      })}
+      {isLoading === false &&
+        filteredContacts.map(({ id, name, phone }) => {
+          return (
+            <Contact key={id}>
+              <ContactInfo>{name}</ContactInfo>
+              <ContactInfo>{phone}</ContactInfo>
+              <DeleteButton onClick={() => deleteContact(id)}>
+                Delete
+              </DeleteButton>
+            </Contact>
+          );
+        })}
     </ContactList>
   );
 };

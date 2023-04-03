@@ -3,14 +3,14 @@ import { FilterStyled } from '../Filter/Filter.styled';
 
 import { nanoid } from 'nanoid';
 import { Report } from 'notiflix/build/notiflix-report-aio';
-import { addContact } from 'redux/contactsSlice';
+import { addContacts } from 'redux/operations';
 import { useDispatch } from 'react-redux';
-import { getContactsList } from 'redux/selectors';
+import { selectContactsList } from 'redux/selectors';
 import { useSelector } from 'react-redux/es/exports';
 
 export const Form = () => {
   const dispatch = useDispatch();
-  const contactsList = useSelector(getContactsList);
+  const contactsList = useSelector(selectContactsList);
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
 
@@ -34,7 +34,7 @@ export const Form = () => {
   };
 
   const updateContacts = ({ name, number }) => {
-    const contact = { id: nanoid(), name, number };
+    const contact = { id: nanoid(), name, phone: number };
     const contactExists = contactsList.find(contact => {
       return contact.name === name || contact.number === number;
     });
@@ -45,7 +45,7 @@ export const Form = () => {
           `Contact with name ${name} and number ${number} already exists`,
           'Okay'
         )
-      : dispatch(addContact(contact));
+      : dispatch(addContacts(contact));
   };
 
   const resetForm = () => {
